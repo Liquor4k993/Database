@@ -9,6 +9,7 @@ import ru.hogwarts.school.model.Student;
 import ru.hogwarts.school.service.StudentService;
 
 import java.util.Collection;
+import java.util.List;
 
 @RestController
 @RequestMapping("/student")
@@ -21,6 +22,7 @@ public class StudentController {
         this.studentService = studentService;
     }
 
+    // CRUD методы
     @PostMapping
     public ResponseEntity<Student> createStudent(@RequestBody Student student) {
         Student createdStudent = studentService.createStudent(student);
@@ -56,7 +58,7 @@ public class StudentController {
         return ResponseEntity.ok(studentService.getAllStudents());
     }
 
-    // Эндпоинт для получения студентов по возрасту между min и max
+    // Фильтрация по возрасту
     @GetMapping("/filter")
     public ResponseEntity<Collection<Student>> getStudentsByAgeBetween(
             @RequestParam int min,
@@ -67,7 +69,7 @@ public class StudentController {
         return ResponseEntity.ok(studentService.getStudentsByAgeBetween(min, max));
     }
 
-    // Эндпоинт для получения факультета студента
+    // Получить факультет студента
     @GetMapping("/{id}/faculty")
     public ResponseEntity<Faculty> getStudentFaculty(@PathVariable Long id) {
         Faculty faculty = studentService.getStudentFaculty(id);
@@ -75,5 +77,28 @@ public class StudentController {
             return ResponseEntity.notFound().build();
         }
         return ResponseEntity.ok(faculty);
+    }
+
+    // ========== НОВЫЕ ЭНДПОИНТЫ ДЛЯ ШАГА 1 ==========
+
+    // 1. Получить количество всех студентов
+    @GetMapping("/count")
+    public ResponseEntity<Integer> getTotalStudentsCount() {
+        int count = studentService.getTotalStudentsCount();
+        return ResponseEntity.ok(count);
+    }
+
+    // 2. Получить средний возраст студентов
+    @GetMapping("/average-age")
+    public ResponseEntity<Double> getAverageAge() {
+        double averageAge = studentService.getAverageAge();
+        return ResponseEntity.ok(averageAge);
+    }
+
+    // 3. Получить последних 5 студентов
+    @GetMapping("/last-five")
+    public ResponseEntity<List<Student>> getLastFiveStudents() {
+        List<Student> lastFive = studentService.getLastFiveStudents();
+        return ResponseEntity.ok(lastFive);
     }
 }

@@ -41,12 +41,10 @@ public class FacultyService {
         return facultyRepository.findAll();
     }
 
-    // Поиск факультета по имени или цвету (регистронезависимый)
     public Collection<Faculty> getFacultiesByNameOrColor(String nameOrColor) {
         return facultyRepository.findByNameContainingIgnoreCaseOrColorContainingIgnoreCase(nameOrColor, nameOrColor);
     }
 
-    // Получить всех студентов факультета
     public Collection<Student> getFacultyStudents(Long facultyId) {
         Faculty faculty = getFaculty(facultyId);
         if (faculty != null) {
