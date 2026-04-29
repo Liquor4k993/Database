@@ -1,5 +1,7 @@
 package ru.hogwarts.school.service;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.hogwarts.school.model.Faculty;
@@ -12,6 +14,8 @@ import java.util.List;
 @Service
 public class StudentService {
 
+    private static final Logger logger = LoggerFactory.getLogger(StudentService.class);
+
     private final StudentRepository studentRepository;
 
     @Autowired
@@ -19,58 +23,87 @@ public class StudentService {
         this.studentRepository = studentRepository;
     }
 
-    // CRUD методы
     public Student createStudent(Student student) {
-        return studentRepository.save(student);
+        logger.info("Was invoked method for create student");
+        logger.debug("Creating student with name: {}", student.getName());
+        Student saved = studentRepository.save(student);
+        logger.info("Student created with id: {}", saved.getId());
+        return saved;
     }
 
     public Student getStudent(Long id) {
+        logger.info("Was invoked method for get student by id: {}", id);
         return studentRepository.findById(id).orElse(null);
     }
 
     public Student updateStudent(Student student) {
+        logger.info("Was invoked method for update student with id: {}", student.getId());
         if (studentRepository.existsById(student.getId())) {
-            return studentRepository.save(student);
+            Student updated = studentRepository.save(student);
+            logger.info("Student with id {} updated successfully", student.getId());
+            return updated;
         }
+        logger.warn("Attempt to update non-existent student with id: {}", student.getId());
         return null;
     }
 
     public void deleteStudent(Long id) {
+        logger.info("Was invoked method for delete student with id: {}", id);
+        if (!studentRepository.existsById(id)) {
+            logger.error("Cannot delete student: there is no student with id = {}", id);
+            throw new RuntimeException("Student not found with id: " + id);
+        }
         studentRepository.deleteById(id);
+        logger.info("Student with id {} deleted successfully", id);
     }
 
     public Collection<Student> getAllStudents() {
-        return studentRepository.findAll();
+        logger.info("Was invoked method for get all students");
+        Collection<Student> students = studentRepository.findAll();
+        logger.debug("Found {} students", students.size());
+        return students;
     }
 
     public Collection<Student> getStudentsByAgeBetween(int min, int max) {
+        logger.info("Was invoked method for get students by age between {} and {}", min, max);
+        if (min > max) {
+            logger.warn("Invalid age range: min={} > max={}", min, max);
+        }
         return studentRepository.findByAgeBetween(min, max);
     }
 
     public Faculty getStudentFaculty(Long studentId) {
+        logger.info("Was invoked method for get faculty of student with id: {}", studentId);
         Student student = getStudent(studentId);
-        if (student != null) {
-            return student.getFaculty();
+        if (student == null) {
+            logger.error("Student not found with id: {}", studentId);
+            return null;
         }
-        return null;
+        return student.getFaculty();
     }
 
-    // ШАГ 1.1: Получить количество студентов
     public int getTotalStudentsCount() {
-        return studentRepository.getTotalStudentsCount();
+        logger.info("Was invoked method for get total students count");
+        int count = studentRepository.getTotalStudentsCount();
+        logger.debug("Total students count: {}", count);
+        return count;
     }
 
-    // ШАГ 1.2: Получить средний возраст студентов
     public double getAverageAge() {
+        logger.info("Was invoked method for get average age of students");
         Double avg = studentRepository.getAverageAge();
         if (avg == null) {
+            logger.warn("No students found, returning average age as 0.0");
             return 0.0;
         }
+        logger.debug("Average age of students: {}", avg);
         return avg;
     }
 
-    // ШАГ 1.3: Получить последних 5 студентов
     public List<Student> getLastFiveStudents() {
-        return studentRepository.getLastFiveStudents();
+        logger.info("Was invoked method for get last five students");
+        List<Student> lastFive = studentRepository.getLastFiveStudents();
+        logger.debug("Retrieved {} last students", lastFive.size());
+        return lastFive;
     }
 }
