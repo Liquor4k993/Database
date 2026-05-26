@@ -56,14 +56,12 @@ public class FacultyController {
         return ResponseEntity.ok(facultyService.getAllFaculties());
     }
 
-    // Эндпоинт для поиска факультета по имени или цвету (регистронезависимый)
     @GetMapping("/filter")
     public ResponseEntity<Collection<Faculty>> getFacultiesByNameOrColor(
             @RequestParam String nameOrColor) {
         return ResponseEntity.ok(facultyService.getFacultiesByNameOrColor(nameOrColor));
     }
 
-    // Эндпоинт для получения всех студентов факультета
     @GetMapping("/{id}/students")
     public ResponseEntity<Collection<Student>> getFacultyStudents(@PathVariable Long id) {
         Collection<Student> students = facultyService.getFacultyStudents(id);
@@ -71,5 +69,11 @@ public class FacultyController {
             return ResponseEntity.notFound().build();
         }
         return ResponseEntity.ok(students);
+    }
+
+    @GetMapping("/longest-name")
+    public ResponseEntity<String> getLongestFacultyName() {
+        String longestName = facultyService.getLongestFacultyName();
+        return ResponseEntity.ok(longestName);
     }
 }

@@ -1,7 +1,6 @@
 package ru.hogwarts.school.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.hogwarts.school.model.Faculty;
@@ -22,11 +21,10 @@ public class StudentController {
         this.studentService = studentService;
     }
 
-    // CRUD методы
     @PostMapping
     public ResponseEntity<Student> createStudent(@RequestBody Student student) {
         Student createdStudent = studentService.createStudent(student);
-        return ResponseEntity.status(HttpStatus.CREATED).body(createdStudent);
+        return ResponseEntity.status(201).body(createdStudent);
     }
 
     @GetMapping("/{id}")
@@ -58,7 +56,6 @@ public class StudentController {
         return ResponseEntity.ok(studentService.getAllStudents());
     }
 
-    // Фильтрация по возрасту
     @GetMapping("/filter")
     public ResponseEntity<Collection<Student>> getStudentsByAgeBetween(
             @RequestParam int min,
@@ -69,7 +66,6 @@ public class StudentController {
         return ResponseEntity.ok(studentService.getStudentsByAgeBetween(min, max));
     }
 
-    // Получить факультет студента
     @GetMapping("/{id}/faculty")
     public ResponseEntity<Faculty> getStudentFaculty(@PathVariable Long id) {
         Faculty faculty = studentService.getStudentFaculty(id);
@@ -79,26 +75,33 @@ public class StudentController {
         return ResponseEntity.ok(faculty);
     }
 
-    // ========== НОВЫЕ ЭНДПОИНТЫ ДЛЯ ШАГА 1 ==========
-
-    // 1. Получить количество всех студентов
     @GetMapping("/count")
     public ResponseEntity<Integer> getTotalStudentsCount() {
         int count = studentService.getTotalStudentsCount();
         return ResponseEntity.ok(count);
     }
 
-    // 2. Получить средний возраст студентов
     @GetMapping("/average-age")
     public ResponseEntity<Double> getAverageAge() {
         double averageAge = studentService.getAverageAge();
         return ResponseEntity.ok(averageAge);
     }
 
-    // 3. Получить последних 5 студентов
     @GetMapping("/last-five")
     public ResponseEntity<List<Student>> getLastFiveStudents() {
         List<Student> lastFive = studentService.getLastFiveStudents();
         return ResponseEntity.ok(lastFive);
+    }
+
+    @GetMapping("/names-starting-with-a")
+    public ResponseEntity<List<String>> getNamesStartingWithA() {
+        List<String> names = studentService.getNamesStartingWithA();
+        return ResponseEntity.ok(names);
+    }
+
+    @GetMapping("/average-age-stream")
+    public ResponseEntity<Double> getAverageAgeStream() {
+        double averageAge = studentService.getAverageAgeStream();
+        return ResponseEntity.ok(averageAge);
     }
 }

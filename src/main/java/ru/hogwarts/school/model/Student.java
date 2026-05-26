@@ -2,18 +2,20 @@ package ru.hogwarts.school.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
-
 import java.util.Objects;
 
 @Entity
+@Table(name = "student")
 public class Student {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(name = "name", unique = true, nullable = false)
     private String name;
 
+    @Column(name = "age", columnDefinition = "INT DEFAULT 20")
     private int age;
 
     @ManyToOne
@@ -21,8 +23,7 @@ public class Student {
     @JsonIgnore
     private Faculty faculty;
 
-    public Student() {
-    }
+    public Student() {}
 
     public Student(Long id, String name, int age) {
         this.id = id;

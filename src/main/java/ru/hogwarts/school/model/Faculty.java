@@ -1,11 +1,13 @@
 package ru.hogwarts.school.model;
 
 import jakarta.persistence.*;
-
 import java.util.List;
 import java.util.Objects;
 
 @Entity
+@Table(name = "faculty", uniqueConstraints = {
+        @UniqueConstraint(columnNames = {"name", "color"})
+})
 public class Faculty {
 
     @Id
@@ -13,14 +15,12 @@ public class Faculty {
     private Long id;
 
     private String name;
-
     private String color;
 
     @OneToMany(mappedBy = "faculty")
     private List<Student> students;
 
-    public Faculty() {
-    }
+    public Faculty() {}
 
     public Faculty(Long id, String name, String color) {
         this.id = id;
