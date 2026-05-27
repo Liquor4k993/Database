@@ -104,4 +104,16 @@ public class StudentController {
         double averageAge = studentService.getAverageAgeStream();
         return ResponseEntity.ok(averageAge);
     }
+
+    @GetMapping("/print-parallel")
+    public ResponseEntity<String> printStudentsParallel() {
+        studentService.printStudentsParallel();
+        return ResponseEntity.ok("Printing students in parallel mode - check console");
+    }
+
+    @GetMapping("/print-synchronized")
+    public ResponseEntity<String> printStudentsSynchronized() {
+        studentService.printStudentsSynchronized();
+        return ResponseEntity.ok("Printing students in synchronized mode - check console");
+    }
 }

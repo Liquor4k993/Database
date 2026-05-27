@@ -26,7 +26,6 @@ public class StudentService {
 
     public Student createStudent(Student student) {
         logger.info("Was invoked method for create student");
-        logger.debug("Creating student with name: {}", student.getName());
         Student saved = studentRepository.save(student);
         logger.info("Student created with id: {}", saved.getId());
         return saved;
@@ -60,16 +59,11 @@ public class StudentService {
 
     public Collection<Student> getAllStudents() {
         logger.info("Was invoked method for get all students");
-        Collection<Student> students = studentRepository.findAll();
-        logger.debug("Found {} students", students.size());
-        return students;
+        return studentRepository.findAll();
     }
 
     public Collection<Student> getStudentsByAgeBetween(int min, int max) {
         logger.info("Was invoked method for get students by age between {} and {}", min, max);
-        if (min > max) {
-            logger.warn("Invalid age range: min={} > max={}", min, max);
-        }
         return studentRepository.findByAgeBetween(min, max);
     }
 
@@ -85,52 +79,130 @@ public class StudentService {
 
     public int getTotalStudentsCount() {
         logger.info("Was invoked method for get total students count");
-        int count = studentRepository.getTotalStudentsCount();
-        logger.debug("Total students count: {}", count);
-        return count;
+        return studentRepository.getTotalStudentsCount();
     }
 
     public double getAverageAge() {
         logger.info("Was invoked method for get average age of students");
         Double avg = studentRepository.getAverageAge();
         if (avg == null) {
-            logger.warn("No students found, returning average age as 0.0");
             return 0.0;
         }
-        logger.debug("Average age of students: {}", avg);
         return avg;
     }
 
     public List<Student> getLastFiveStudents() {
         logger.info("Was invoked method for get last five students");
-        List<Student> lastFive = studentRepository.getLastFiveStudents();
-        logger.debug("Retrieved {} last students", lastFive.size());
-        return lastFive;
+        return studentRepository.getLastFiveStudents();
     }
 
     public List<String> getNamesStartingWithA() {
         logger.info("Was invoked method for get names starting with letter A");
-
-        List<String> names = studentRepository.findAll().stream()
+        return studentRepository.findAll().stream()
                 .map(Student::getName)
                 .filter(name -> name != null && name.startsWith("A"))
                 .map(String::toUpperCase)
                 .sorted()
                 .collect(Collectors.toList());
-
-        logger.debug("Found {} names starting with A", names.size());
-        return names;
     }
 
     public double getAverageAgeStream() {
         logger.info("Was invoked method for get average age using stream");
-
-        double averageAge = studentRepository.findAll().stream()
+        return studentRepository.findAll().stream()
                 .mapToInt(Student::getAge)
                 .average()
                 .orElse(0.0);
+    }
 
-        logger.debug("Average age of students: {}", averageAge);
-        return averageAge;
+    public void printStudentsParallel() {
+        logger.info("Was invoked method for print students in parallel mode");
+
+        List<Student> students = studentRepository.findAll();
+
+        if (students.size() < 6) {
+            logger.warn("Not enough students. Need at least 6, but found {}", students.size());
+            System.out.println("Not enough students. Please add more students.");
+            return;
+        }
+
+        List<String> names = students.stream()
+                .map(Student::getName)
+                .collect(Collectors.toList());
+
+        System.out.println("=== PARALLEL PRINTING MODE ===");
+
+        System.out.println("[MAIN THREAD] " + names.get(0));
+        System.out.println("[MAIN THREAD] " + names.get(1));
+
+        Thread thread1 = new Thread(() -> {
+            System.out.println("[THREAD-1] " + names.get(2));
+            System.out.println("[THREAD-1] " + names.get(3));
+        });
+
+        Thread thread2 = new Thread(() -> {
+            System.out.println("[THREAD-2] " + names.get(4));
+            System.out.println("[THREAD-2] " + names.get(5));
+        });
+
+        thread1.start();
+        thread2.start();
+
+        try {
+            thread1.join();
+            thread2.join();
+        } catch (InterruptedException e) {
+            logger.error("Thread interrupted: {}", e.getMessage());
+            Thread.currentThread().interrupt();
+        }
+
+        System.out.println("=== PARALLEL PRINTING FINISHED ===");
+    }
+
+    public void printStudentsSynchronized() {
+        logger.info("Was invoked method for print students in synchronized mode");
+
+        List<Student> students = studentRepository.findAll();
+
+        if (students.size() < 6) {
+            logger.warn("Not enough students. Need at least 6, but found {}", students.size());
+            System.out.println("Not enough students. Please add more students.");
+            return;
+        }
+
+        List<String> names = students.stream()
+                .map(Student::getName)
+                .collect(Collectors.toList());
+
+        System.out.println("=== SYNCHRONIZED PRINTING MODE ===");
+
+        printName("[MAIN THREAD] " + names.get(0));
+        printName("[MAIN THREAD] " + names.get(1));
+
+        Thread thread1 = new Thread(() -> {
+            printName("[THREAD-1] " + names.get(2));
+            printName("[THREAD-1] " + names.get(3));
+        });
+
+        Thread thread2 = new Thread(() -> {
+            printName("[THREAD-2] " + names.get(4));
+            printName("[THREAD-2] " + names.get(5));
+        });
+
+        thread1.start();
+        thread2.start();
+
+        try {
+            thread1.join();
+            thread2.join();
+        } catch (InterruptedException e) {
+            logger.error("Thread interrupted: {}", e.getMessage());
+            Thread.currentThread().interrupt();
+        }
+
+        System.out.println("=== SYNCHRONIZED PRINTING FINISHED ===");
+    }
+
+    private synchronized void printName(String nameWithThread) {
+        System.out.println(nameWithThread);
     }
 }
